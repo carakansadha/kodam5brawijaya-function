@@ -6,7 +6,7 @@ const legacyRouter = express.Router();
 
 legacyRouter.post("/likePost", likePost);
 
-legacyRouter.post("/postPhoto", upload.single('attachment'), postPhoto);
+legacyRouter.post("/postPhoto", upload.array('attachment[]'), postPhoto);
 
 legacyRouter.get("/getPosts", getPosts);
 

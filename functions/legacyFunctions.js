@@ -11,6 +11,7 @@ const likePost = async (req, res) => {
     })
 
     let arr = []
+    let obj = {}
     const { Likes } = post.data
 
     // if (Likes.length == 0) {
@@ -41,14 +42,18 @@ const likePost = async (req, res) => {
             "Authorization": req.headers.authorization
         }
     })
+
     const getUser = await microgen.get('/auth/user', {
         headers: {
             "Authorization": req.headers.authorization
         }
     })
 
-    if (getLike.data.name == null) {
-        arr.push(getUser.data._id)
+    if (getLike.data.name == null || getLike.data.name == '') {
+        obj.id = getUser.data._id
+        obj.name = getUser.data.userName
+        console.log(obj)
+        arr.push(obj)
 
         await microgen.patch(`/Likes/${Likes[0]._id}`, {
             "name": JSON.stringify(arr)
@@ -62,11 +67,13 @@ const likePost = async (req, res) => {
             return res.status(400).json(err.data)
         });
     } else {
-
+        obj.id = getUser.data._id
+        obj.name = getUser.data.userName
         arr = JSON.parse(getLike.data.name)
 
-        if (arr.includes(getUser.data._id)) {
-            let newArr = arr.filter((id) => id != getUser.data._id)
+        if (arr.find((i) => i.id = getUser.data._id)) {
+            console.log(1)
+            let newArr = arr.filter((obj) => obj != obj)
 
             await microgen.patch(`/Likes/${Likes[0]._id}`, {
                 "name": JSON.stringify(newArr)
@@ -81,7 +88,8 @@ const likePost = async (req, res) => {
             });
 
         } else {
-            arr.push(getUser.data._id)
+            console.log(2)
+            arr.push(obj)
 
             await microgen.patch(`/Likes/${Likes[0]._id}`, {
                 "name": JSON.stringify(arr)
@@ -111,22 +119,29 @@ const postPhoto = async (req, res) => {
             "Authorization": req.headers.authorization
         }
     })
+    let images = []
+    await Promise.all(req.files.map(async (file, index, arr) => {
+        const data = new FormData()
+        data.append("file", fs.createReadStream(file.path))
 
-    const data = new FormData()
-    data.append("file", fs.createReadStream(req.file.path))
+        const upload = await microgen.post('/storage/upload', data, {
+            headers: {
+                "Authorization": req.headers.authorization
+            }
+        })
 
-    const upload = await microgen.post('/storage/upload', data, {
-        headers: {
-            "Authorization": req.headers.authorization
-        }
-    })
+        let obj = { url: upload.data.url, fileName: upload.data.fileName }
+        fs.unlinkSync(file.path)
+        images.push(obj)
+    }));
+    console.log(images)
 
     const post = await microgen.post('/Posts', {
         "content": content,
         "title": title,
         "type": 'photo',
         "user": [getUser.data._id],
-        "attachment": [{ url: upload.data.url, fileName: upload.data.fileName }]
+        "attachment": images
     }, {
         headers: {
             "Authorization": req.headers.authorization
@@ -146,7 +161,6 @@ const postPhoto = async (req, res) => {
             "Authorization": req.headers.authorization
         }
     }).then((result) => {
-        fs.unlinkSync(req.file.path)
         return res.status(200).json(result.data)
     }).catch((err) => {
         return res.status(400).json(err)
