@@ -135,7 +135,7 @@ const login = async (req, res) => {
                 "Authorization": `Bearer ${response.token}`
             }
         }).then(async (result) => {
-            token = result.data.access_token    
+            token = result.data.access_token
 
             response.access_token = token
 
