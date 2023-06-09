@@ -43,7 +43,7 @@ const uploadVideo = async (req, res) => {
         }
     })
         .then(async (result) => {
-            let embedUrl = `https://video.humaspolri.id/videos/embed/${result.data.video.uuid}`
+            let embedUrl = `https://video.kodam5.id/videos/embed/${result.data.video.uuid}`
             const post = await microgen.post('/Posts', {
                 "content": content,
                 "type": "video",
