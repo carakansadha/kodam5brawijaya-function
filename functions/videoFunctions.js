@@ -4,7 +4,11 @@ import FormData from "form-data";
 import queryString from "query-string";
 
 const uploadVideo = async (req, res) => {
-    const { channelId, content } = req.body;
+    const { content } = req.body;
+
+    const contentSplit = content.split(" ")
+    const contentSlice = contentSplit.slice(0, 5)
+    const title = contentSlice.join(" ")
 
     const getUser = await microgen.get('/auth/user', {
         headers: {
@@ -13,8 +17,9 @@ const uploadVideo = async (req, res) => {
     })
 
     const data = new FormData()
+    const namep = content ? content : "Video Post";
     data.append("channelId", getUser.data.channelId)
-    data.append("name", content)
+    data.append("name", title)
     data.append("privacy", 2)
     data.append("videofile", fs.createReadStream(req.file.path))
 
@@ -32,18 +37,13 @@ const uploadVideo = async (req, res) => {
     const getToken = await peertube.post('/users/token', dataUser)
     token = getToken.data.access_token
 
-    const contentSplit = content.split(" ")
-    const contentSlice = contentSplit.slice(0, 5)
-    const title = contentSlice.join(" ")
-
     peertube.post('/videos/upload', data, {
         headers: {
             "Authorization": `Bearer ${token}`
         }
     })
         .then(async (result) => {
-            let embedUrl = `https://video.kodam5.id/videos/embed/${result.data.video.uuid}`
-            console.log(result)
+            let embedUrl = `https://video.humaspolri.id/videos/embed/${result.data.video.uuid}`
             const post = await microgen.post('/Posts', {
                 "content": content,
                 "type": "video",
@@ -69,6 +69,25 @@ const uploadVideo = async (req, res) => {
         }).catch(async (err) => {
             return await res.status(400).json(err.response);
         });
+}
+
+const createLive = async (req, res) => {
+    const getUser = await microgen.get('/auth/user', {
+        headers: {
+            "Authorization": req.headers.authorization
+        }
+    })
+
+    const data = {
+        "channelId": getUser.data.channelId,
+        "name": '',
+        "latencyMode": 1,
+        "saveReplay": true,
+        "privacy": 2
+    }
+
+    peertube.post('/videos/live', data)
+
 }
 
 const deleteVideo = async (req, res) => {
