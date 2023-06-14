@@ -4,7 +4,7 @@ import FormData from "form-data";
 import queryString from "query-string";
 
 const uploadVideo = async (req, res) => {
-    const { content } = req.body;
+    const { content, location, completeLocation, province, subdistrict, regency } = req.body;
 
     const contentSplit = content.split(" ")
     const contentSlice = contentSplit.slice(0, 5)
@@ -49,7 +49,12 @@ const uploadVideo = async (req, res) => {
                 "type": "video",
                 "user": [getUser.data._id],
                 "videoUrl": embedUrl,
-                "title": title
+                "title": title,
+                "location": location,
+                "regency": regency,
+                "subdistrict": subdistrict,
+                "province": province,
+                "completeLocation": completeLocation
             }, {
                 headers: {
                     "Authorization": req.headers.authorization
@@ -92,6 +97,49 @@ const createLive = async (req, res) => {
 
 const deleteVideo = async (req, res) => {
     const { id } = req.params
+    
+    const getUser = await microgen.get('/auth/user', {
+        headers: {
+            "Authorization": req.headers.authorization
+        }
+    })
+
+    const dataUser = queryString.stringify({
+        "client_id": process.env.CLIENT_ID,
+        "client_secret": process.env.CLIENT_SECRET,
+        "response_type": "code",
+        "grant_type": "password",
+        "scope": "upload",
+        "username": getUser.data.email,
+        "password": getUser.data.privateKey
+    })
+
+    const getToken = await peertube.post('/users/token', dataUser)
+    const token = getToken.data.access_token
+
+    const getPost = await microgen.get(`/Posts/${id}?$lookup=*`, {
+        headers: {
+            "Authorization": req.headers.authorization
+        }
+    })
+
+    const { videoUrl } = getPost.data
+    const uuid = videoUrl.split("https://video.humaspolri.id/videos/embed/")[1]
+
+    peertube.delete(`/videos/${uuid}`, {
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
+    }).then((result) => {
+        const deletePost = microgen.delete(`/Posts/${id}`, {
+            headers: {
+                "Authorization": req.headers.authorization
+            }
+        })
+        return res.status(200).json(deletePost);
+    }).catch((err) => {
+        return res.status(400).json(err.response);
+    });
 }
 
 export { uploadVideo, deleteVideo }
