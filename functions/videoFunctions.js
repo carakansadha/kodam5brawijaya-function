@@ -97,13 +97,13 @@ const createLive = async (req, res) => {
 
 const deleteVideo = async (req, res) => {
     const { id } = req.params
-    
+
     const getUser = await microgen.get('/auth/user', {
         headers: {
             "Authorization": req.headers.authorization
         }
     })
-
+    
     const dataUser = queryString.stringify({
         "client_id": process.env.CLIENT_ID,
         "client_secret": process.env.CLIENT_SECRET,
@@ -113,10 +113,10 @@ const deleteVideo = async (req, res) => {
         "username": getUser.data.email,
         "password": getUser.data.privateKey
     })
-
+    
     const getToken = await peertube.post('/users/token', dataUser)
     const token = getToken.data.access_token
-
+    
     const getPost = await microgen.get(`/Posts/${id}?$lookup=*`, {
         headers: {
             "Authorization": req.headers.authorization
@@ -124,8 +124,8 @@ const deleteVideo = async (req, res) => {
     })
 
     const { videoUrl } = getPost.data
-    const uuid = videoUrl.split("https://video.humaspolri.id/videos/embed/")[1]
-
+    const uuid = videoUrl.split("https://video.kodam5.id/videos/embed/")[1]
+    
     peertube.delete(`/videos/${uuid}`, {
         headers: {
             "Authorization": `Bearer ${token}`
@@ -138,6 +138,7 @@ const deleteVideo = async (req, res) => {
         })
         return res.status(200).json(deletePost);
     }).catch((err) => {
+        console.log(err)
         return res.status(400).json(err.response);
     });
 }
