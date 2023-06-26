@@ -4,7 +4,7 @@ import FormData from "form-data";
 import queryString from "query-string";
 
 const uploadVideo = async (req, res) => {
-    const { content, location, completeLocation, province, subdistrict, regency } = req.body;
+    const { content, location, completeLocation, province, subdistrict, regency, article } = req.body;
 
     const contentSplit = content.split(" ")
     const contentSlice = contentSplit.slice(0, 5)
@@ -54,7 +54,8 @@ const uploadVideo = async (req, res) => {
                 "regency": regency,
                 "subdistrict": subdistrict,
                 "province": province,
-                "completeLocation": completeLocation
+                "completeLocation": completeLocation,
+                "article": article
             }, {
                 headers: {
                     "Authorization": req.headers.authorization
@@ -103,7 +104,7 @@ const deleteVideo = async (req, res) => {
             "Authorization": req.headers.authorization
         }
     })
-    
+
     const dataUser = queryString.stringify({
         "client_id": process.env.CLIENT_ID,
         "client_secret": process.env.CLIENT_SECRET,
@@ -113,10 +114,10 @@ const deleteVideo = async (req, res) => {
         "username": getUser.data.email,
         "password": getUser.data.privateKey
     })
-    
+
     const getToken = await peertube.post('/users/token', dataUser)
     const token = getToken.data.access_token
-    
+
     const getPost = await microgen.get(`/Posts/${id}?$lookup=*`, {
         headers: {
             "Authorization": req.headers.authorization
@@ -125,7 +126,7 @@ const deleteVideo = async (req, res) => {
 
     const { videoUrl } = getPost.data
     const uuid = videoUrl.split("https://video.kodam5.id/videos/embed/")[1]
-    
+
     peertube.delete(`/videos/${uuid}`, {
         headers: {
             "Authorization": `Bearer ${token}`
