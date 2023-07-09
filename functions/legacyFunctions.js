@@ -28,7 +28,7 @@ const likePost = async (req, res) => {
 
     if (getLike.data.name == null || getLike.data.name == '') {
         obj.id = getUser.data._id
-        obj.name = getUser.data.userName        
+        obj.name = getUser.data.userName
         arr.push(obj)
 
         await microgen.patch(`/Likes/${Likes[0]._id}`, {
@@ -47,8 +47,8 @@ const likePost = async (req, res) => {
         obj.name = getUser.data.userName
         arr = JSON.parse(getLike.data.name)
 
-        if (arr.find((i) => i.id = getUser.data._id)) {            
-            let newArr = arr.filter((obj) => obj != obj)
+        if (arr.find((i) => i.id == getUser.data._id)) {
+            let newArr = arr.filter((arrs) => arrs.id !== obj.id)
 
             await microgen.patch(`/Likes/${Likes[0]._id}`, {
                 "name": JSON.stringify(newArr)
@@ -62,7 +62,7 @@ const likePost = async (req, res) => {
                 return res.status(400).json(err.data)
             });
 
-        } else {            
+        } else {
             arr.push(obj)
 
             await microgen.patch(`/Likes/${Likes[0]._id}`, {
@@ -107,7 +107,7 @@ const postPhoto = async (req, res) => {
         let obj = { url: upload.data.url, fileName: upload.data.fileName }
         fs.unlinkSync(file.path)
         images.push(obj)
-    }));    
+    }));
 
     const post = await microgen.post('/Posts', {
         "content": content,
@@ -162,7 +162,7 @@ const getPosts = async (req, res) => {
                 "Authorization": req.headers.authorization
             }
         })
-    // 
+        // 
         data.push(Post)
     }));
     // .then((result) => {
@@ -189,7 +189,7 @@ const followUser = async (req, res) => {
             "Authorization": req.headers.authorization
         }
     })
-    
+
     const getUser = await microgen.get('/auth/user', {
         headers: {
             "Authorization": req.headers.authorization
@@ -198,7 +198,7 @@ const followUser = async (req, res) => {
 
     if (getFollow.data.name == null || getFollow.data.name == '') {
         obj.id = getUser.data._id
-        obj.name = getUser.data.userName        
+        obj.name = getUser.data.userName
         arr.push(obj)
 
         await microgen.patch(`/Follows/${Follows[0]._id}`, {
@@ -207,7 +207,7 @@ const followUser = async (req, res) => {
             headers: {
                 "Authorization": req.headers.authorization
             }
-        }).then((result) => {            
+        }).then((result) => {
             return res.status(200).json(result.data)
         }).catch((err) => {
             return res.status(400).json(err.data)
@@ -217,7 +217,7 @@ const followUser = async (req, res) => {
         obj.name = getUser.data.userName
         arr = JSON.parse(getFollow.data.name)
 
-        if (arr.find((i) => i.id = getUser.data._id)) {            
+        if (arr.find((i) => i.id = getUser.data._id)) {
             let newArr = arr.filter((obj) => obj != obj)
 
             await microgen.patch(`/Follows/${Follows[0]._id}`, {
@@ -232,7 +232,7 @@ const followUser = async (req, res) => {
                 return res.status(400).json(err.data)
             });
 
-        } else {            
+        } else {
             arr.push(obj)
 
             await microgen.patch(`/Follows/${Follows[0]._id}`, {
