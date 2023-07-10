@@ -25,7 +25,7 @@ app.use('/function/video', videoRouter);
 
 app.use('/function/legacy', legacyRouter);
 
-app.use('/funcation', sendEmailRouter);
+app.use('/function', sendEmailRouter);
 
 app.listen(process.env.PORT, () => {
     console.log(`running on port ${process.env.PORT}`);
