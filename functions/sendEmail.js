@@ -1,4 +1,4 @@
-import { microgen } from "../libs/axios";
+import { microgen } from "../libs/axios.js";
 
 const sendEmail = async (req, res) => {
     console.log(req, res)
