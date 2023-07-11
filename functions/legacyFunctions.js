@@ -12,7 +12,19 @@ const likePost = async (req, res) => {
 
     let arr = []
     let obj = {}
-    const { Likes } = post.data
+    let { Likes } = post.data
+
+    if (Likes == '') {
+        const createLike = await microgen.post('/Likes', {
+            "post": [post.data._id],
+            "name": "[]"
+        }, {
+            headers: {
+                "Authorization": req.headers.authorization
+            }
+        })
+        Likes = [createLike.data]
+    }
 
     const getLike = await microgen.get(`/Likes/${Likes[0]._id}`, {
         headers: {
@@ -122,7 +134,8 @@ const postPhoto = async (req, res) => {
     })
 
     const createLike = await microgen.post('/Likes', {
-        "post": [post.data._id]
+        "post": [post.data._id],
+        "name": "[]"
     }, {
         headers: {
             "Authorization": req.headers.authorization
