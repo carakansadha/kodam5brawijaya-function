@@ -63,7 +63,8 @@ const uploadVideo = async (req, res) => {
             })
 
             const createLike = await microgen.post('/Likes', {
-                "post": [post.data._id]
+                "post": [post.data._id],
+                "name": "[]"
             }, {
                 headers: {
                     "Authorization": req.headers.authorization
