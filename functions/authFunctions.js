@@ -102,7 +102,7 @@ const register = async (req, res) => {
                             </p>
                             <p class="code" style="margin-top: 1rem;  font-weight: 600;
                             color: black;
-                            text-align: center; font-size: large;">${"jdoaodjao"}</p>
+                            text-align: center; font-size: large;">${response.user.firstName}</p>
                         </div>
                         </div>
                 
