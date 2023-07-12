@@ -94,7 +94,7 @@ const likePost = async (req, res) => {
 }
 
 const postPhoto = async (req, res) => {
-    const { content } = req.body
+    const { content, location, completeLocation, province, subdistrict, regency, article } = req.body;
 
     const contentSplit = content.split(" ")
     const contentSlice = contentSplit.slice(0, 5)
@@ -126,7 +126,13 @@ const postPhoto = async (req, res) => {
         "title": title,
         "type": 'photo',
         "user": [getUser.data._id],
-        "attachment": images
+        "attachment": images,
+        "location": location,
+        "regency": regency,
+        "subdistrict": subdistrict,
+        "province": province,
+        "completeLocation": completeLocation,
+        "article": article
     }, {
         headers: {
             "Authorization": req.headers.authorization
