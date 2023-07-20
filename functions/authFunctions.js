@@ -1,6 +1,8 @@
 import { microgen, peertube } from "../libs/axios.js";
 import nodemailer from "nodemailer";
 import queryString from "query-string";
+import fs from "fs";
+import FormData from "form-data";
 
 const register = async (req, res) => {
     const { email, firstName, password } = req.body;
@@ -39,6 +41,26 @@ const register = async (req, res) => {
 
             const register = await microgen.post('/auth/register', {
                 ...req.body, "channelId": channelId, "privateKey": password, "address": firstName
+            })
+
+            let body = new FormData();
+            body.append('file', fs.createReadStream('uploads/user.svg'))
+
+            const upload = await microgen.post('/storage/upload', body, {
+                headers: {
+                    "Authorization": `Bearer ${register.data.token}`
+                }
+            })
+
+            let obj = { url: upload.data.url, fileName: upload.data.fileName }
+            let images = [obj]
+
+            const update = await microgen.patch(`/Users/${register.data.userId}`, {
+                profilePicture: images
+            }, {
+                headers: {
+                    "Authorization": `Bearer ${register.data.token}`
+                }
             })
 
             const createFollow = await microgen.post('/Follows', {
