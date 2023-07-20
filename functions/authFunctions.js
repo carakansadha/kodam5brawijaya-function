@@ -44,7 +44,7 @@ const register = async (req, res) => {
             })
 
             let body = new FormData();
-            body.append('file', fs.createReadStream('uploads/user.svg'))
+            body.append('file', fs.createReadStream('uploads/user.png'))
 
             const upload = await microgen.post('/storage/upload', body, {
                 headers: {
